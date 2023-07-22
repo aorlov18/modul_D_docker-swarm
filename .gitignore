@@ -1,0 +1,7 @@
+storage.key
+key.json
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+.terraform
+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
