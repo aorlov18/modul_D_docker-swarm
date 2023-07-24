@@ -27,8 +27,9 @@ resource "yandex_compute_instance" "vm-manager" {
   metadata = {
     ssh-keys = "${var.ssh_credentials.user}:${file(var.ssh_credentials.pub_key)}"
   }
-
+  
 }
+
 resource "yandex_compute_instance" "vm-worker" {
   count    = var.workers
   name     = "ci-sockshop-docker-swarm-worker-${count.index}"

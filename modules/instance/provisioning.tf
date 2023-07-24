@@ -9,14 +9,16 @@ resource "null_resource" "docker-swarm-manager" {
 
   provisioner "file" {
     source      = "./docker-compose/docker-compose-v3.yml"
-    destination = "~/docker-compose.yml"
+    destination = "/tmp/docker-compose.yml"
   }
 
-    provisioner "remote-exec" {
+  provisioner "remote-exec" {
     inline = [
       "curl -fsSL https://get.docker.com | sh",
       "sudo usermod -aG docker $USER",
       "sudo apt install -y docker-compose",
+      "sudo chmod +x /usr/local/bin/docker-compose",
+      "chmod +x /tmp/docker-compose.yml",
       "sudo docker swarm init",
       "sleep 10",
       "echo COMPLETED"
@@ -49,15 +51,19 @@ resource "null_resource" "docker-swarm-worker" {
 
   provisioner "file" {
     source      = "join.sh"
-    destination = "~/join.sh"
+    destination = "/tmp/join.sh"
   }
 
   provisioner "remote-exec" {
     inline = [
       "curl -fsSL https://get.docker.com | sh",
+      "sudo groupadd docker",
       "sudo usermod -aG docker $USER",
-      "chmod +x ~/join.sh",
-      "~/join.sh"
+      "chmod +x /tmp/join.sh",
+      "/tmp/join.sh",
+      "sudo systemctl enable docker.service",
+      "sudo systemctl enable containerd.service"
+
     ]
   }
 }
@@ -72,7 +78,7 @@ resource "null_resource" "docker-swarm-manager-start" {
 
   provisioner "remote-exec" {
     inline = [
-        "docker stack deploy --compose-file ~/docker-compose.yml sockshop-swarm"
+      "docker stack deploy --compose-file /tmp/docker-compose.yml sockshop-swarm"
     ]
   }
 
